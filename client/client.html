@@ -7,6 +7,108 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
+    //JSON Parse
+    const parseJSON = (xhr, content) => {
+      if(xhr.response) {
+        const parsedObj = JSON.parse(xhr.response);
+        console.dir(parsedObj);
+
+        if(parsedObj.message) {
+          content.innerHTML += `<p>Message: ${parsedObj.message}</p>`;
+        }
+      }
+    };
+
+//XML Parse - couldn't get this 100% working
+  const parseXML = (xhr, content) => {
+    if(xhr.response) {
+      const type = xhr.getResponseHeader('content-type');
+        
+        const p = document.createElement('p');
+        console.dir(xhr.responseXML);
+      
+    }
+  }
+
+    const handleResponse = (xhr, parseResponse) => {
+      const content = document.querySelector('#content');
+      const dataType = document.querySelector('#type');
+        
+        //switch statement updated with status codes
+        switch(xhr.status){
+            case 200:
+                content.innerHTML = '<b>Success</b>';
+                break;
+            case 400:
+                content.innerHTML = '<b>Bad Request</b>';
+                break;
+            case 401:
+                content.innerHTML = '<b>Unauthorized</b>';
+                break;
+            case 403:
+                content.innerHTML = '<b>Forbidden</b>';
+                break;
+            case 500:
+                content.innerHTML = '<b>Internal Server Error</b>';
+                break;
+            case 501:
+                content.innerHTML = '<b>Not Implemented</b>';
+                break;
+            default:
+                content.innerHTML = '<b>Resource Not Found</b>';
+                break;
+      }
+      //if JSON parseJSON function
+      if(type === 'application/json') {
+        parseJSON(xhr, content);
+
+      } 
+      //if XML parseXML function
+      else if (type === 'text/xml') {
+        parseXML(xhr, content);
+      }
+    };
+    
+//update request via sendXHR
+ const sendXHR = (url) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open('GET', url);
+      const responseType = document.querySelector('#type');
+      const type = responseType.options[responseType.selectedIndex].value;
+
+      xhr.setRequestHeader("Accept", type);
+
+      xhr.onload = () => handleResponse(xhr);
+      xhr.send();
+    }
+
+
+    //init
+    const init = () => {
+    
+    //HTML id grab
+    const sendButton = document.querySelector("#send");
+    const pageDropdown = document.querySelector("#page");
+    //const typeDropdown = document.querySelector("#type");
+
+        let pageSelected = pageDropdown.options[pageDropdown.selectedIndex].value;
+        
+        const getPage = () => {
+          sendXHR(pageSelected);
+          console.dir(pageSelected);
+      };
+        
+        const getPageSelect = () => {
+            pageSelected = pageDropdown.options[pageDropdown.selectedIndex].value;
+        }
+        
+      //hook up send button and the select form page dropdown
+      sendButton.addEventListener('click', getPage);
+      pageDropdown.addEventListener('click', getPageSelect)
+};
+    
+    window.onload = init;
+
   </script>
 </head>
 <body>
